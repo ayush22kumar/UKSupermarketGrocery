@@ -110,7 +110,7 @@ class ASDACollector:
         time.sleep(self.sleep_time)
         last_page_css = self.css_elements_map['last_page_number']
         try:
-            last_page_number = driver.find_element(By.CSS_SELECTOR, '#main-content div.co-pagination__max-page > a').text
+            last_page_number = driver.find_element(By.CSS_SELECTOR, last_page_css).text
         except NoSuchElementException:
             last_page_number = 1
             driver.quit()
