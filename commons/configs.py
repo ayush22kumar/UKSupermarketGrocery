@@ -1,0 +1,1 @@
+DATADIR_PATH = r'C:\Users\milan\Documents\projects\grocery-agg\data\scraping'

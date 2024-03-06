@@ -13,6 +13,7 @@ from random import randint
 from selenium import webdriver
 import re
 from selenium.webdriver.firefox.options import Options
+from commons.configs import DATADIR_PATH
 
 
 
@@ -20,11 +21,15 @@ from selenium.webdriver.firefox.options import Options
 class ASDACollector:
 
     def __int__(self):
-        self.output_datadir = r'C:\Users\milan\Downloads\temp'
+        self.output_datadir = os.path.join(DATADIR_PATH, 'ASDA')
+        try:
+            os.makedirs(self.output_datadir)
+        except:
+            pass
         self.sleep_time = 10
         self.categories = ['vegan-vegetarian', 'dietary-lifestyle']
         self.base_url = 'https://groceries.asda.com'
-        self.max_page_limit_per_category = 20
+        self.max_page_limit_per_category = 1
         self.css_elements_map = {
             'last_page_number': '#main-content div.co-pagination__max-page > a',
             'product_name': ('#main-content '
