@@ -19,30 +19,24 @@ from base_collector import BaseCollector
 
 
 
-class ASDACollector(BaseCollector):
+class ALDICollector(BaseCollector):
 
     def __int__(self):
-        super(ASDACollector, self).__init__()
-        self.output_datadir = os.path.join(DATADIR_PATH, 'ASDA')
+        super(ALDICollector, self).__init__()
+        self.output_datadir = os.path.join(DATADIR_PATH, 'ALDI')
         try:
             os.makedirs(self.output_datadir)
         except:
             pass
         self.sleep_time = 10
-        self.categories = ['vegan-vegetarian', 'dietary-lifestyle']
-        self.base_url = 'https://groceries.asda.com'
+        self.categories = ['frozen', 'chilled-food']
+        self.base_url = 'https://groceries.aldi.co.uk/en-GB'
         self.max_page_limit_per_category = MAX_PAGE_PER_CATEGORY
         self.css_elements_map = {
-            'last_page_number': '#main-content div.co-pagination__max-page > a',
-            'product_name': ('#main-content '
-                            '.co-product-list__main-cntr.co-product-list__main-cntr--rest-in-shelf '
-                            '.co-product__anchor'),
-            'product_price': ('#main-content '
-                             '.co-product-list__main-cntr.co-product-list__main-cntr--rest-in-shelf '
-                             '.co-product__price'),
-            'product_price_per_kg': ('#main-content '
-                                    '.co-product-list__main-cntr.co-product-list__main-cntr--rest-in-shelf '
-                                    '.co-product__price-per-uom'),
+            'last_page_number': 'ul .d-flex-inline.pt-2',
+            'product_name': '#vueSearchResults .p.text-default-font',
+            'product_price': '#vueSearchResults div.product-tile-price.text-center > div > span > span',
+            'product_price_per_kg': '#vueSearchResults div.product-tile-price.text-center > div > div > p > small > span',
         }
 
 
@@ -56,7 +50,7 @@ class ASDACollector(BaseCollector):
 
         for _category in self.categories:
             print('Working on Category {0}'.format(_category))
-            last_page_number = self._get_last_page_number(f'{self.base_url}/search/{_category}')
+            last_page_number = self._get_last_page_number(f'{self.base_url}/{_category}')
 
             print('Found pages for category {0} -> {1}'.format(_category, last_page_number))
 
@@ -68,7 +62,7 @@ class ASDACollector(BaseCollector):
                 driver = self.get_driver()
 
                 try:
-                    driver.get(f'{self.base_url}/search/{_category}/products?page={page}')
+                    driver.get(f'{self.base_url}/{_category}?&page={page}')
                     time.sleep(randint(2, 5))
 
                     raw_names = driver.find_elements(By.CSS_SELECTOR, self.css_elements_map['product_name'])
@@ -114,6 +108,8 @@ class ASDACollector(BaseCollector):
         last_page_css = self.css_elements_map['last_page_number']
         try:
             last_page_number = driver.find_element(By.CSS_SELECTOR, last_page_css).text
+            last_page_number = last_page_number.replace('of', '').replace(' ', '')
+            last_page_number = int(last_page_number)
         except NoSuchElementException:
             last_page_number = 1
             driver.quit()
@@ -128,6 +124,8 @@ class ASDACollector(BaseCollector):
             time.sleep(self.sleep_time)
             last_page_number = wait.until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, last_page_css))).text
+            last_page_number = last_page_number.replace('of', '').replace(' ', '')
+            last_page_number = int(last_page_number)
             driver1.quit()
 
         if self.max_page_limit_per_category and int(last_page_number) > self.max_page_limit_per_category:
@@ -135,6 +133,6 @@ class ASDACollector(BaseCollector):
         return int(last_page_number)
 
 if __name__ == "__main__":
-    x = ASDACollector()
+    x = ALDICollector()
     x.__int__()
     x.scrape()
